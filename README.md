@@ -23,3 +23,40 @@ git fetch template && git checkout template/master .github
 ```
 
 Затем добавьте полученные изменения в свой репозиторий.
+
+# Development
+
+## Run Database
+
+The database can be started via docker container using this command:
+
+```bash
+docker run --name gophermart-postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=gophermart -p 5432:5432 -d postgres
+```
+
+## Run app
+
+Some examples of how you can run the app (see Configuration below):
+
+TODO
+
+## Configuration
+
+App can be configured via flags and/or environment variables. If both flag and environment variable are set for the same parameter, environment variable prevails.
+
+### `-a`, `RUN_ADDRESS`
+Address and port to run server in the form of host:port.
+
+### `-d`, `DATABASE_URI`
+Database URI.
+
+### `-r`, `ACCRUAL_SYSTEM_ADDRESS`
+Accrual system address.
+
+## Migrations
+
+Migrations are implemented with [bun](https://bun.uptrace.dev/guide/migrations.html)
+
+# API Examples
+
+TODO
