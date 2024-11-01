@@ -6,6 +6,7 @@ import (
 	"github.com/madatsci/gophermart/internal/app/config"
 	"github.com/madatsci/gophermart/internal/app/logger"
 	"github.com/madatsci/gophermart/internal/app/server"
+	"github.com/madatsci/gophermart/internal/app/store"
 	"go.uber.org/zap"
 )
 
@@ -13,6 +14,7 @@ type (
 	App struct {
 		config *config.Config
 		server *server.Server
+		store  store.Store
 		logger *zap.SugaredLogger
 	}
 
@@ -32,11 +34,17 @@ func New(ctx context.Context, opts Options) (*App, error) {
 		return nil, err
 	}
 
+	store, err := store.New(ctx, config)
+	if err != nil {
+		return nil, err
+	}
+
 	srv := server.New(config, log)
 
 	app := &App{
 		config: config,
 		logger: log,
+		store:  store,
 		server: srv,
 	}
 
@@ -46,4 +54,9 @@ func New(ctx context.Context, opts Options) (*App, error) {
 // Start starts the application.
 func (a *App) Start() error {
 	return a.server.Start()
+}
+
+// Store is used for migrations.
+func (a *App) Store() store.Store {
+	return a.store
 }

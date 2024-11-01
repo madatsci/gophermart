@@ -55,7 +55,47 @@ Accrual system address.
 
 ## Migrations
 
-Migrations are implemented with [bun](https://bun.uptrace.dev/guide/migrations.html)
+Migrations are implemented with [bun](https://bun.uptrace.dev/guide/migrations.html). You can run migrations using CLI app.
+
+### CLI command
+
+Create migration:
+
+```bash
+go run ./cmd/gophermart-cli/main.go -d 'postgres://postgres:postgres@localhost:5432/gophermart?sslmode=disable' db create_sql <migration_name>
+```
+
+Run migrations:
+
+```bash
+go run ./cmd/gophermart-cli/main.go -d 'postgres://postgres:postgres@localhost:5432/gophermart?sslmode=disable' db migrate
+```
+
+Rollback migrations:
+
+```bash
+go run ./cmd/gophermart-cli/main.go -d 'postgres://postgres:postgres@localhost:5432/gophermart?sslmode=disable' db rollback
+```
+
+### Makefile
+
+Create migration:
+
+```bash
+make name="create_users" db_create_sql
+```
+
+Run migrations:
+
+```bash
+make db_migrate
+```
+
+Rollback migrations:
+
+```bash
+make db_rollback
+```
 
 # API Examples
 
