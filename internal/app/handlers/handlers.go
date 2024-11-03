@@ -1,9 +1,13 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/madatsci/gophermart/internal/app/config"
+	"github.com/madatsci/gophermart/internal/app/server/middleware"
 	"github.com/madatsci/gophermart/internal/app/store"
 	"github.com/madatsci/gophermart/pkg/jwt"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
 
@@ -26,6 +30,16 @@ type (
 // New creates new Handlers.
 func New(opts Options) *Handlers {
 	return &Handlers{c: opts.Config, s: opts.Store, jwt: opts.JWT, log: opts.Logger}
+}
+
+func ensureUserID(r *http.Request) (string, error) {
+	userIDCtx := r.Context().Value(middleware.AuthenticatedUserKey)
+	userID, ok := userIDCtx.(string)
+	if !ok {
+		return "", errors.New("authenticated user is required")
+	}
+
+	return userID, nil
 }
 
 func (h *Handlers) handleError(method string, err error) {

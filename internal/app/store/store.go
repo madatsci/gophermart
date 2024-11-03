@@ -17,6 +17,11 @@ type Store interface {
 
 	// Accounts
 	CreateAccount(ctx context.Context, account models.Account) (models.Account, error)
+	GetAccountByUserID(ctx context.Context, userID string) (models.Account, error)
+
+	// Orders
+	CreateOrder(ctx context.Context, order models.Order) (models.Order, error)
+	GetOrderByNumber(ctx context.Context, orderNumber string) (models.Order, error)
 }
 
 func New(ctx context.Context, cfg *config.Config) (Store, error) {

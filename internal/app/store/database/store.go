@@ -48,6 +48,37 @@ func (s *Store) CreateAccount(ctx context.Context, account models.Account) (mode
 	return result, err
 }
 
+// GetAccountByUserID fetches user account by user ID.
+func (s *Store) GetAccountByUserID(ctx context.Context, userID string) (models.Account, error) {
+	var result models.Account
+
+	err := s.conn.NewSelect().Model(&result).Where("user_id = ?", userID).Scan(ctx)
+
+	return result, err
+}
+
+// CreateOrder saves new order in database.
+func (s *Store) CreateOrder(ctx context.Context, order models.Order) (models.Order, error) {
+	var result models.Order
+
+	err := s.conn.NewInsert().Model(&order).Returning("*").Scan(ctx, &result)
+
+	return result, err
+}
+
+// GetOrderByNumber fetches order by its number.
+func (s *Store) GetOrderByNumber(ctx context.Context, orderNumber string) (models.Order, error) {
+	var result models.Order
+
+	err := s.conn.NewSelect().
+		Model(&result).
+		Where("number = ?", orderNumber).
+		Relation("Account").
+		Scan(ctx)
+
+	return result, err
+}
+
 func (s *Store) bootstrap(ctx context.Context) error {
 	return Migrate(ctx, s.conn)
 }

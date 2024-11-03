@@ -170,3 +170,15 @@ Content-Length: 0
 Private API requires `auth_token` cookie to be set and contain JWT token.
 
 ### Create Order
+
+```bash
+curl -i -X POST http://localhost:8080/api/user/orders \
+   -b "auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnb3BoZXJtYXJ0IiwiZXhwIjoxNzMwNjUzMzI0LCJVc2VySUQiOiIxMWE4YjAzMi02NmM0LTQ1YWQtYTlhZS0xYjkwMWMxZDIzZmUifQ.wS9OUOD9WY0eI17G1q9puqusYf3UxMSdEF3_AA_hexI" \
+   -H "Content-Type: text/plain" \
+   -d '12345678903'
+
+# Response:
+HTTP/1.1 200 OK
+Date: Sun, 03 Nov 2024 16:06:05 GMT
+Content-Length: 0
+```
