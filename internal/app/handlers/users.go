@@ -2,9 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/google/uuid"
 	"github.com/madatsci/gophermart/internal/app/models"
@@ -62,7 +63,23 @@ func (h *Handlers) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	account := models.Account{
+		ID:        uuid.NewString(),
+		UserID:    user.ID,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	_, err = h.s.CreateAccount(r.Context(), account)
+	if err != nil {
+		h.handleError("RegisterUser", errors.Wrap(err, "could not create new account"))
+		w.WriteHeader(http.StatusInternalServerError)
+
+		return
+	}
+
 	h.log.With("ID", user.ID, "login", user.Login).Info("new user registered")
+	h.log.With("ID", account.ID, "userID", user.ID).Info("new account created")
 
 	if err = h.authenticateUser(w, user); err != nil {
 		h.handleError("RegisterUser", err)

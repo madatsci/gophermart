@@ -11,8 +11,12 @@ import (
 )
 
 type Store interface {
+	// Users
 	CreateUser(ctx context.Context, user models.User) (models.User, error)
 	GetUserByLogin(ctx context.Context, login string) (models.User, error)
+
+	// Accounts
+	CreateAccount(ctx context.Context, account models.Account) (models.Account, error)
 }
 
 func New(ctx context.Context, cfg *config.Config) (Store, error) {

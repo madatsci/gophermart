@@ -39,6 +39,15 @@ func (s *Store) GetUserByLogin(ctx context.Context, login string) (models.User, 
 	return result, err
 }
 
+// CreateAccount creates new account.
+func (s *Store) CreateAccount(ctx context.Context, account models.Account) (models.Account, error) {
+	var result models.Account
+
+	err := s.conn.NewInsert().Model(&account).Returning("*").Scan(ctx, &result)
+
+	return result, err
+}
+
 func (s *Store) bootstrap(ctx context.Context) error {
 	return Migrate(ctx, s.conn)
 }
