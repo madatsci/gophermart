@@ -127,7 +127,9 @@ make db_rollback
 
 # API Examples
 
-## Register A New User
+## Public API
+
+### Register A New User
 
 After successful registration, automatic user authentication should occur.
 
@@ -146,7 +148,7 @@ Date: Sun, 03 Nov 2024 13:09:12 GMT
 Content-Length: 0
 ```
 
-## User Authentication
+### User Authentication
 
 ```bash
 curl -i -X POST http://localhost:8080/api/user/login \
@@ -163,9 +165,8 @@ Date: Sun, 03 Nov 2024 13:00:33 GMT
 Content-Length: 0
 ```
 
-TODO delete this example
 ## Private API
 
-```bash
-curl -i -X GET -b "auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnb3BoZXJtYXJ0IiwiZXhwIjoxNzMwNjQyNDE3LCJVc2VySUQiOiIyOTcxMDQzYy03NDNmLTQ3MmMtOTY4MS0yNzUzZjkyMzBmNDIifQ.grdF5wTR-E4uq6ogI_LDTzyFO7gc-m6OlR8cJwoqtoA" http://localhost:8080/api/user/orders
-```
+Private API requires `auth_token` cookie to be set and contain JWT token.
+
+### Create Order

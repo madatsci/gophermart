@@ -54,8 +54,7 @@ func New(config *config.Config, store store.Store, logger *zap.SugaredLogger) *S
 		// Private API
 		r.Route("/api/user/orders", func(r chi.Router) {
 			r.Use(authMiddleware.PrivateAPIAuth)
-			// TODO delete this example
-			r.Get("/", h.PrivateAPIHandler)
+			r.Post("/", h.CreateOrder)
 		})
 	})
 

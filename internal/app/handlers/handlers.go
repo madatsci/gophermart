@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"net/http"
-
 	"github.com/madatsci/gophermart/internal/app/config"
 	"github.com/madatsci/gophermart/internal/app/store"
 	"github.com/madatsci/gophermart/pkg/jwt"
@@ -28,11 +26,6 @@ type (
 // New creates new Handlers.
 func New(opts Options) *Handlers {
 	return &Handlers{c: opts.Config, s: opts.Store, jwt: opts.JWT, log: opts.Logger}
-}
-
-// TODO delete
-func (h *Handlers) PrivateAPIHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
 }
 
 func (h *Handlers) handleError(method string, err error) {
