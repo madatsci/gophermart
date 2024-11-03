@@ -37,7 +37,7 @@ func (l *Logger) Logger(next http.Handler) http.Handler {
 			"status", responseData.status,
 			"duration", duration,
 			"size", responseData.size,
-		).Info("incoming request")
+		).Info("processed incoming request")
 	})
 }
 

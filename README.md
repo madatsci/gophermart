@@ -136,3 +136,19 @@ HTTP/1.1 200 OK
 Date: Fri, 01 Nov 2024 14:07:47 GMT
 Content-Length: 0
 ```
+
+## User Authentication
+
+```bash
+curl -i -X POST http://localhost:8080/api/user/login \
+   -H "Content-Type: application/json" \
+   -d '{
+      "login":"john_doe",
+      "password":"my_secret_password"
+   }'
+
+# Response:
+HTTP/1.1 200 OK
+Date: Sun, 03 Nov 2024 11:21:13 GMT
+Content-Length: 0
+```

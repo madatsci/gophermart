@@ -30,6 +30,7 @@ func New(config *config.Config, store store.Store, logger *zap.SugaredLogger) *S
 
 	r.Route("/", func(r chi.Router) {
 		r.Post("/api/user/register", h.RegisterUser)
+		r.Post("/api/user/login", h.LoginUser)
 	})
 
 	server := &Server{

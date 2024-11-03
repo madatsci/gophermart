@@ -21,10 +21,20 @@ func New(ctx context.Context, conn *bun.DB) (*Store, error) {
 	return store, nil
 }
 
+// CreateUser saves new user in database.
 func (s *Store) CreateUser(ctx context.Context, user models.User) (models.User, error) {
 	var result models.User
 
 	err := s.conn.NewInsert().Model(&user).Returning("*").Scan(ctx, &result)
+
+	return result, err
+}
+
+// GetUserByLogin fetches user from database by login.
+func (s *Store) GetUserByLogin(ctx context.Context, login string) (models.User, error) {
+	var result models.User
+
+	err := s.conn.NewSelect().Model(&result).Where("login = ?", login).Scan(ctx)
 
 	return result, err
 }
