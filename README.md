@@ -132,7 +132,7 @@ curl -i -X POST http://localhost:8080/api/user/register \
    }'
 
 # Response:
-HTTP/1.1 201 Created
+HTTP/1.1 200 OK
 Date: Fri, 01 Nov 2024 14:07:47 GMT
 Content-Length: 0
 ```

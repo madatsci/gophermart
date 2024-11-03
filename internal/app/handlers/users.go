@@ -58,5 +58,5 @@ func (h *Handlers) RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	h.log.With("ID", user.ID, "login", user.Login).Info("new user registered")
 
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 }
