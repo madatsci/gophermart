@@ -18,7 +18,7 @@ var (
 	DatabaseURI string
 
 	TokenSecret   = []byte("secret_key")
-	TokenDuration = time.Hour
+	TokenDuration = time.Hour * 24 * 365
 )
 
 func Parse() error {
