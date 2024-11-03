@@ -10,6 +10,11 @@ lint:
 run:
 	./cmd/gophermart/gophermart -d 'postgres://postgres:postgres@localhost:5432/gophermart?sslmode=disable'
 
+.PHONY: test_unit
+test_unit:
+	go test -v ./internal/app/...
+	go test -v ./pkg/...
+
 # make name="create_users" db_create_sql
 .PHONY: db_create_sql
 db_create_sql:
