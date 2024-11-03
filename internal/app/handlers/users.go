@@ -17,7 +17,7 @@ func (h *Handlers) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	dec := json.NewDecoder(r.Body)
 	if err := dec.Decode(&request); err != nil {
 		h.handleError("RegisterUser", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
