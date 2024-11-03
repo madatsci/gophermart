@@ -54,6 +54,7 @@ func (h *Handlers) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		ID:        uuid.NewString(),
 		AccountID: acc.ID,
 		Number:    orderNumber,
+		Status:    models.OrderStatusNew,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
