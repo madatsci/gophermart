@@ -39,7 +39,7 @@ func New(ctx context.Context, opts Options) (*App, error) {
 		return nil, err
 	}
 
-	srv := server.New(config, log)
+	srv := server.New(config, store, log)
 
 	app := &App{
 		config: config,

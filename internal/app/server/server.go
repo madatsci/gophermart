@@ -6,26 +6,32 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/madatsci/gophermart/internal/app/config"
+	"github.com/madatsci/gophermart/internal/app/handlers"
+	"github.com/madatsci/gophermart/internal/app/store"
 	"go.uber.org/zap"
 )
 
 type Server struct {
 	mux    http.Handler
 	config *config.Config
+	h      *handlers.Handlers
 	log    *zap.SugaredLogger
 }
 
-func New(config *config.Config, logger *zap.SugaredLogger) *Server {
+func New(config *config.Config, store store.Store, logger *zap.SugaredLogger) *Server {
+	h := handlers.New(config, logger, store)
+
 	r := chi.NewRouter()
 	r.Use(middleware.Recoverer)
 
 	r.Route("/", func(r chi.Router) {
-		r.Get("/", tmpHandler)
+		r.Post("/api/user/register", h.RegisterUser)
 	})
 
 	server := &Server{
 		mux:    r,
 		config: config,
+		h:      h,
 		log:    logger,
 	}
 
@@ -37,9 +43,4 @@ func (s *Server) Start() error {
 	s.log.Infof("starting server with config: %+v", s.config)
 
 	return http.ListenAndServe(s.config.RunAddress, s.mux)
-}
-
-func tmpHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("I can't do anything yet..."))
-	w.WriteHeader(http.StatusOK)
 }

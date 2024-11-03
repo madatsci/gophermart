@@ -34,11 +34,33 @@ The database can be started via docker container using this command:
 docker run --name gophermart-postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=gophermart -p 5432:5432 -d postgres
 ```
 
-## Run app
+## Build App
 
-Some examples of how you can run the app (see Configuration below):
+```bash
+cd cmd/gophermart && go build -o gophermart *.go
+```
 
-TODO
+or
+
+```bash
+make build
+```
+
+## Run App
+
+Database connection is required to run the app. Some examples of how you can run the app (see Configuration below):
+
+### Run app with database URI
+
+```bash
+./cmd/gophermart/gophermart -d 'postgres://postgres:postgres@localhost:5432/gophermart?sslmode=disable'
+```
+
+or
+
+```bash
+make run
+```
 
 ## Configuration
 
@@ -99,4 +121,18 @@ make db_rollback
 
 # API Examples
 
-TODO
+## Register A New User
+
+```bash
+curl -i -X POST http://localhost:8080/api/user/register \
+   -H "Content-Type: application/json" \
+   -d '{
+      "login":"john_doe",
+      "password":"my_secret_password"
+   }'
+
+# Response:
+HTTP/1.1 201 Created
+Date: Fri, 01 Nov 2024 14:07:47 GMT
+Content-Length: 0
+```

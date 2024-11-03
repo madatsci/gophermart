@@ -1,3 +1,15 @@
+.PHONY: build
+build:
+	cd cmd/gophermart && go build -o gophermart *.go
+
+.PHONY: lint
+lint:
+	golangci-lint run
+
+.PHONY: run
+run:
+	./cmd/gophermart/gophermart -d 'postgres://postgres:postgres@localhost:5432/gophermart?sslmode=disable'
+
 # make name="create_users" db_create_sql
 .PHONY: db_create_sql
 db_create_sql:

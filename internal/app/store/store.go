@@ -6,10 +6,13 @@ import (
 
 	"github.com/madatsci/gophermart/internal/app/config"
 	"github.com/madatsci/gophermart/internal/app/database"
+	"github.com/madatsci/gophermart/internal/app/models"
 	db "github.com/madatsci/gophermart/internal/app/store/database"
 )
 
-type Store interface{}
+type Store interface {
+	CreateUser(ctx context.Context, user models.User) (models.User, error)
+}
 
 func New(ctx context.Context, cfg *config.Config) (Store, error) {
 	if cfg.DatabaseURI != "" {
