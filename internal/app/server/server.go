@@ -9,6 +9,8 @@ import (
 	"github.com/madatsci/gophermart/internal/app/handlers"
 	"github.com/madatsci/gophermart/internal/app/store"
 	"go.uber.org/zap"
+
+	mw "github.com/madatsci/gophermart/internal/app/server/middleware"
 )
 
 type Server struct {
@@ -22,6 +24,8 @@ func New(config *config.Config, store store.Store, logger *zap.SugaredLogger) *S
 	h := handlers.New(config, logger, store)
 
 	r := chi.NewRouter()
+	loggerMiddleware := mw.NewLogger(logger)
+	r.Use(loggerMiddleware.Logger)
 	r.Use(middleware.Recoverer)
 
 	r.Route("/", func(r chi.Router) {
