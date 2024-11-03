@@ -64,6 +64,13 @@ func (h *Handlers) RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	h.log.With("ID", user.ID, "login", user.Login).Info("new user registered")
 
+	if err = h.authenticateUser(w, user); err != nil {
+		h.handleError("RegisterUser", err)
+		w.WriteHeader(http.StatusInternalServerError)
+
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -104,14 +111,24 @@ func (h *Handlers) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.log.With("ID", user.ID, "login", user.Login).Info("user authenticated")
+	if err = h.authenticateUser(w, user); err != nil {
+		h.handleError("LoginUser", err)
+		w.WriteHeader(http.StatusInternalServerError)
 
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handlers) authenticateUser(w http.ResponseWriter, user models.User) error {
 	token, err := h.jwt.GetString(user.ID)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		return err
 	}
 	http.SetCookie(w, &http.Cookie{Name: h.c.AuthCookieName, Value: token})
 
-	w.WriteHeader(http.StatusOK)
+	h.log.With("ID", user.ID, "login", user.Login).Info("user authenticated")
+
+	return nil
 }

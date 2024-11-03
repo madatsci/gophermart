@@ -129,6 +129,8 @@ make db_rollback
 
 ## Register A New User
 
+After successful registration, automatic user authentication should occur.
+
 ```bash
 curl -i -X POST http://localhost:8080/api/user/register \
    -H "Content-Type: application/json" \
@@ -139,7 +141,8 @@ curl -i -X POST http://localhost:8080/api/user/register \
 
 # Response:
 HTTP/1.1 200 OK
-Date: Fri, 01 Nov 2024 14:07:47 GMT
+Set-Cookie: auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnb3BoZXJtYXJ0IiwiZXhwIjoxNzMwNjQyOTI4LCJVc2VySUQiOiIyMDA2OGZkZC0yNjk2LTQwNWEtODZlMS1hZjAyZTUyMzI1NzEifQ.R9bO1F5c3LiIAa_IVWHzzLl3rJtLK4LZW8ix1sQ1xM4
+Date: Sun, 03 Nov 2024 13:09:12 GMT
 Content-Length: 0
 ```
 
