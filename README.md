@@ -75,6 +75,12 @@ Database URI.
 ### `-r`, `ACCRUAL_SYSTEM_ADDRESS`
 Accrual system address.
 
+### `--token-secret`, `TOKEN_SECRET_KEY`
+Authentication token secret key.
+
+### `--token-duration`, `TOKEN_DURATION`
+Authentication token duration (in the format of Golang duration string).
+
 ## Migrations
 
 Migrations are implemented with [bun](https://bun.uptrace.dev/guide/migrations.html). You can run migrations using CLI app.
@@ -149,6 +155,14 @@ curl -i -X POST http://localhost:8080/api/user/login \
 
 # Response:
 HTTP/1.1 200 OK
-Date: Sun, 03 Nov 2024 11:21:13 GMT
+Set-Cookie: auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnb3BoZXJtYXJ0IiwiZXhwIjoxNzMwNjQyNDE3LCJVc2VySUQiOiIyOTcxMDQzYy03NDNmLTQ3MmMtOTY4MS0yNzUzZjkyMzBmNDIifQ.grdF5wTR-E4uq6ogI_LDTzyFO7gc-m6OlR8cJwoqtoA
+Date: Sun, 03 Nov 2024 13:00:33 GMT
 Content-Length: 0
+```
+
+TODO delete this example
+## Private API
+
+```bash
+curl -i -X GET -b "auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnb3BoZXJtYXJ0IiwiZXhwIjoxNzMwNjQyNDE3LCJVc2VySUQiOiIyOTcxMDQzYy03NDNmLTQ3MmMtOTY4MS0yNzUzZjkyMzBmNDIifQ.grdF5wTR-E4uq6ogI_LDTzyFO7gc-m6OlR8cJwoqtoA" http://localhost:8080/api/user/orders
 ```

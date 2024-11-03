@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var (
@@ -15,6 +16,9 @@ var (
 	AccrualSystemAddress = "localhost:8081"
 
 	DatabaseURI string
+
+	TokenSecret   = []byte("secret_key")
+	TokenDuration = time.Hour
 )
 
 func Parse() error {
@@ -46,6 +50,29 @@ func Parse() error {
 		return nil
 	})
 
+	flag.Func("token-secret", "authentication token secret key", func(flagValue string) error {
+		if flagValue == "" {
+			return errors.New("invalid secret key")
+		}
+
+		TokenSecret = []byte(flagValue)
+		return nil
+	})
+
+	flag.Func("token-duration", "authentication token duration", func(flagValue string) error {
+		if flagValue == "" {
+			return errors.New("invalid duration")
+		}
+
+		duration, err := time.ParseDuration(flagValue)
+		if err != nil {
+			return errors.New("invalid duration")
+		}
+
+		TokenDuration = duration
+		return nil
+	})
+
 	flag.Parse()
 
 	if envRunAddress := os.Getenv("RUN_ADDRESS"); envRunAddress != "" {
@@ -58,6 +85,19 @@ func Parse() error {
 
 	if envAccrualSystemAddress := os.Getenv("ACCRUAL_SYSTEM_ADDRESS"); envAccrualSystemAddress != "" {
 		AccrualSystemAddress = envAccrualSystemAddress
+	}
+
+	if envTokenSecretKey := os.Getenv("TOKEN_SECRET_KEY"); envTokenSecretKey != "" {
+		TokenSecret = []byte(envTokenSecretKey)
+	}
+
+	if envTokenDuration := os.Getenv("TOKEN_DURATION"); envTokenDuration != "" {
+		duration, err := time.ParseDuration(envTokenDuration)
+		if err != nil {
+			return fmt.Errorf("invalid TOKEN_DURATION: %s", envTokenDuration)
+		}
+
+		TokenDuration = duration
 	}
 
 	return nil

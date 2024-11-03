@@ -16,6 +16,8 @@ func main() {
 		RunAddress:           flags.RunAddress,
 		AccrualSystemAddress: flags.AccrualSystemAddress,
 		DatabaseURI:          flags.DatabaseURI,
+		TokenSecret:          flags.TokenSecret,
+		TokenDuration:        flags.TokenDuration,
 	})
 	if err != nil {
 		panic(err)

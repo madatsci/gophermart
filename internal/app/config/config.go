@@ -1,15 +1,30 @@
 package config
 
+import "time"
+
 type Config struct {
 	RunAddress           string
 	AccrualSystemAddress string
 	DatabaseURI          string
+
+	TokenSecret   []byte
+	TokenDuration time.Duration
+	TokenIssuer   string
+
+	AuthCookieName string
 }
 
-func New(runAddress, accrualSystemAddress, databaseURI string) *Config {
+// New creates new config
+func New(runAddress, accrualSystemAddress, databaseURI string, tokenSecret []byte, tokenDuration time.Duration) *Config {
 	return &Config{
 		RunAddress:           runAddress,
 		AccrualSystemAddress: accrualSystemAddress,
 		DatabaseURI:          databaseURI,
+
+		TokenSecret:   tokenSecret,
+		TokenDuration: tokenDuration,
+		TokenIssuer:   "gophermart",
+
+		AuthCookieName: "auth_token",
 	}
 }

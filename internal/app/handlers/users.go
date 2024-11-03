@@ -106,5 +106,12 @@ func (h *Handlers) LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	h.log.With("ID", user.ID, "login", user.Login).Info("user authenticated")
 
+	token, err := h.jwt.GetString(user.ID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	http.SetCookie(w, &http.Cookie{Name: h.c.AuthCookieName, Value: token})
+
 	w.WriteHeader(http.StatusOK)
 }

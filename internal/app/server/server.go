@@ -8,6 +8,7 @@ import (
 	"github.com/madatsci/gophermart/internal/app/config"
 	"github.com/madatsci/gophermart/internal/app/handlers"
 	"github.com/madatsci/gophermart/internal/app/store"
+	"github.com/madatsci/gophermart/pkg/jwt"
 	"go.uber.org/zap"
 
 	mw "github.com/madatsci/gophermart/internal/app/server/middleware"
@@ -21,16 +22,41 @@ type Server struct {
 }
 
 func New(config *config.Config, store store.Store, logger *zap.SugaredLogger) *Server {
-	h := handlers.New(config, logger, store)
+	jwt := jwt.New(jwt.Options{
+		Secret:   config.TokenSecret,
+		Duration: config.TokenDuration,
+		Issuer:   config.TokenIssuer,
+	})
+
+	h := handlers.New(handlers.Options{
+		Store:  store,
+		Config: config,
+		JWT:    jwt,
+		Logger: logger,
+	})
 
 	r := chi.NewRouter()
 	loggerMiddleware := mw.NewLogger(logger)
 	r.Use(loggerMiddleware.Logger)
 	r.Use(middleware.Recoverer)
 
+	authMiddleware := mw.NewAuth(mw.Options{
+		Config: config,
+		JWT:    jwt,
+		Log:    logger,
+	})
+
 	r.Route("/", func(r chi.Router) {
+		// Public API
 		r.Post("/api/user/register", h.RegisterUser)
 		r.Post("/api/user/login", h.LoginUser)
+
+		// Private API
+		r.Route("/api/user/orders", func(r chi.Router) {
+			r.Use(authMiddleware.PrivateAPIAuth)
+			// TODO delete this example
+			r.Get("/", h.PrivateAPIHandler)
+		})
 	})
 
 	server := &Server{

@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"time"
 
 	"github.com/madatsci/gophermart/internal/app/config"
 	"github.com/madatsci/gophermart/internal/app/logger"
@@ -22,12 +23,14 @@ type (
 		RunAddress           string
 		AccrualSystemAddress string
 		DatabaseURI          string
+		TokenSecret          []byte
+		TokenDuration        time.Duration
 	}
 )
 
 // New creates new App.
 func New(ctx context.Context, opts Options) (*App, error) {
-	config := config.New(opts.RunAddress, opts.AccrualSystemAddress, opts.DatabaseURI)
+	config := config.New(opts.RunAddress, opts.AccrualSystemAddress, opts.DatabaseURI, opts.TokenSecret, opts.TokenDuration)
 
 	log, err := logger.New()
 	if err != nil {
