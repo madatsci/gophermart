@@ -182,3 +182,18 @@ HTTP/1.1 200 OK
 Date: Sun, 03 Nov 2024 16:06:05 GMT
 Content-Length: 0
 ```
+
+### Get Orders
+
+```bash
+curl -i -X GET http://localhost:8080/api/user/orders \
+   -b "auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnb3BoZXJtYXJ0IiwiZXhwIjoxNzMwNjUzMzI0LCJVc2VySUQiOiIxMWE4YjAzMi02NmM0LTQ1YWQtYTlhZS0xYjkwMWMxZDIzZmUifQ.wS9OUOD9WY0eI17G1q9puqusYf3UxMSdEF3_AA_hexI"
+
+# Response:
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Mon, 04 Nov 2024 13:35:10 GMT
+Content-Length: 102
+
+[{"number":"1234567890003","status":"NEW","accrual":"0","uploaded_at":"2024-11-03T17:32:43.936343Z"}]
+```

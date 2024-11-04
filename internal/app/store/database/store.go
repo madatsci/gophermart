@@ -79,6 +79,19 @@ func (s *Store) GetOrderByNumber(ctx context.Context, orderNumber string) (model
 	return result, err
 }
 
+func (s *Store) ListOrdersByAccountID(ctx context.Context, accountID string, limit int) ([]models.Order, error) {
+	var result []models.Order
+
+	err := s.conn.NewSelect().
+		Model(&result).
+		Where("account_id = ?", accountID).
+		Order("created_at DESC").
+		Limit(limit).
+		Scan(ctx)
+
+	return result, err
+}
+
 func (s *Store) bootstrap(ctx context.Context) error {
 	return Migrate(ctx, s.conn)
 }

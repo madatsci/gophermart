@@ -22,6 +22,7 @@ type Store interface {
 	// Orders
 	CreateOrder(ctx context.Context, order models.Order) (models.Order, error)
 	GetOrderByNumber(ctx context.Context, orderNumber string) (models.Order, error)
+	ListOrdersByAccountID(ctx context.Context, accountID string, limit int) ([]models.Order, error)
 }
 
 func New(ctx context.Context, cfg *config.Config) (Store, error) {

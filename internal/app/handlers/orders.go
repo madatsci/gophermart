@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,6 +13,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/uptrace/bun/driver/pgdriver"
 )
+
+const listOrdersLimit = 100
 
 // CreateOrder registers a new order number.
 func (h *Handlers) CreateOrder(w http.ResponseWriter, r *http.Request) {
@@ -89,4 +92,40 @@ func (h *Handlers) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusAccepted)
+}
+
+// GetOrders returns all orders created by the authorized user.
+func (h *Handlers) GetOrders(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type", "application/json")
+
+	userID, err := ensureUserID(r)
+	if err != nil {
+		h.handleError("GetOrders", err)
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	acc, err := h.s.GetAccountByUserID(r.Context(), userID)
+	if err != nil {
+		h.handleError("GetOrders", fmt.Errorf("account not found for user %s", userID))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	orders, err := h.s.ListOrdersByAccountID(r.Context(), acc.ID, listOrdersLimit)
+	if err != nil {
+		h.handleError("GetOrders", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if len(orders) == 0 {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	enc := json.NewEncoder(w)
+	if err := enc.Encode(orders); err != nil {
+		h.handleError("GetOrders", err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 }
