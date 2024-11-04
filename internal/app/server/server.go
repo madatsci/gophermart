@@ -52,10 +52,16 @@ func New(config *config.Config, store store.Store, logger *zap.SugaredLogger) *S
 		r.Post("/api/user/login", h.LoginUser)
 
 		// Private API
+		// Orders
 		r.Route("/api/user/orders", func(r chi.Router) {
 			r.Use(authMiddleware.PrivateAPIAuth)
 			r.Post("/", h.CreateOrder)
 			r.Get("/", h.GetOrders)
+		})
+		// Balance
+		r.Route("/api/user/balance", func(r chi.Router) {
+			r.Use(authMiddleware.PrivateAPIAuth)
+			r.Get("/", h.GetBalance)
 		})
 	})
 

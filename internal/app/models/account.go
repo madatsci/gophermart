@@ -7,13 +7,13 @@ import (
 )
 
 type Account struct {
-	ID                 string          `bun:",pk,type:uuid"`
-	UserID             string          `bun:",unique,notnull"`
-	CurrentPointsTotal decimal.Decimal `bun:",notnull,default:0"`
-	WithdrawnTotal     decimal.Decimal `bun:",notnull,default:0"`
-	CreatedAt          time.Time       `bun:",notnull,default:current_timestamp"`
-	UpdatedAt          time.Time       `bun:",notnull,default:current_timestamp"`
+	ID                 string          `bun:",pk,type:uuid" json:"-"`
+	UserID             string          `bun:",unique,notnull" json:"-"`
+	CurrentPointsTotal decimal.Decimal `bun:",notnull,default:0" json:"current"`
+	WithdrawnTotal     decimal.Decimal `bun:",notnull,default:0"  json:"withdrawn"`
+	CreatedAt          time.Time       `bun:",notnull,default:current_timestamp" json:"-"`
+	UpdatedAt          time.Time       `bun:",notnull,default:current_timestamp" json:"-"`
 
-	User   User     `bun:"rel:belongs-to,join:user_id=id"`
-	Orders []*Order `bun:"rel:has-many,join:id=account_id"`
+	User   User     `bun:"rel:belongs-to,join:user_id=id" json:"-"`
+	Orders []*Order `bun:"rel:has-many,join:id=account_id" json:"-"`
 }
