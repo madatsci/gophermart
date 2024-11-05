@@ -2,12 +2,15 @@ package app
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/madatsci/gophermart/internal/app/config"
+	"github.com/madatsci/gophermart/internal/app/database"
 	"github.com/madatsci/gophermart/internal/app/logger"
 	"github.com/madatsci/gophermart/internal/app/server"
 	"github.com/madatsci/gophermart/internal/app/store"
+	db "github.com/madatsci/gophermart/internal/app/store/database"
 	"go.uber.org/zap"
 )
 
@@ -37,7 +40,7 @@ func New(ctx context.Context, opts Options) (*App, error) {
 		return nil, err
 	}
 
-	store, err := store.New(ctx, config)
+	store, err := newStore(ctx, config)
 	if err != nil {
 		return nil, err
 	}
@@ -62,4 +65,16 @@ func (a *App) Start() error {
 // Store is used for migrations.
 func (a *App) Store() store.Store {
 	return a.store
+}
+
+func newStore(ctx context.Context, cfg *config.Config) (store.Store, error) {
+	if cfg.DatabaseURI != "" {
+		conn, err := database.NewClient(ctx, cfg.DatabaseURI)
+		if err != nil {
+			return nil, err
+		}
+		return db.New(ctx, conn)
+	}
+
+	return nil, errors.New("database URI must be provided")
 }

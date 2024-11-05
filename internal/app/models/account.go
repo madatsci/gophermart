@@ -10,7 +10,7 @@ type Account struct {
 	ID                 string          `bun:",pk,type:uuid" json:"-"`
 	UserID             string          `bun:",unique,notnull" json:"-"`
 	CurrentPointsTotal decimal.Decimal `bun:",notnull,default:0" json:"current"`
-	WithdrawnTotal     decimal.Decimal `bun:",notnull,default:0"  json:"withdrawn"`
+	WithdrawnTotal     decimal.Decimal `bun:",notnull,default:0" json:"withdrawn"`
 	CreatedAt          time.Time       `bun:",notnull,default:current_timestamp" json:"-"`
 	UpdatedAt          time.Time       `bun:",notnull,default:current_timestamp" json:"-"`
 

@@ -2,8 +2,13 @@ package database
 
 import (
 	"context"
+	"database/sql"
+	"errors"
+	"time"
 
 	"github.com/madatsci/gophermart/internal/app/models"
+	"github.com/madatsci/gophermart/internal/app/store"
+	"github.com/shopspring/decimal"
 	"github.com/uptrace/bun"
 )
 
@@ -79,6 +84,7 @@ func (s *Store) GetOrderByNumber(ctx context.Context, orderNumber string) (model
 	return result, err
 }
 
+// ListOrdersByAccountID fetches orders linked to the account.
 func (s *Store) ListOrdersByAccountID(ctx context.Context, accountID string, limit int) ([]models.Order, error) {
 	var result []models.Order
 
@@ -90,6 +96,55 @@ func (s *Store) ListOrdersByAccountID(ctx context.Context, accountID string, lim
 		Scan(ctx)
 
 	return result, err
+}
+
+func (s *Store) WithdrawBalance(ctx context.Context, userID string, sum decimal.Decimal) (models.Account, error) {
+	var acc models.Account
+
+	tx, err := s.conn.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return acc, err
+	}
+
+	err = tx.NewSelect().
+		Model(&acc).
+		Where("user_id = ?", userID).
+		Scan(ctx)
+	if err != nil {
+		return acc, err
+	}
+
+	if acc.CurrentPointsTotal.Cmp(sum) == -1 {
+		tx.Rollback() //nolint:errcheck
+
+		return acc, &store.NotEnoughBalanceError{
+			Err:               errors.New("not enough balance"),
+			Balance:           acc.CurrentPointsTotal,
+			WithdrawRequested: sum,
+		}
+	}
+
+	acc.CurrentPointsTotal = acc.CurrentPointsTotal.Sub(sum)
+	acc.WithdrawnTotal = acc.WithdrawnTotal.Add(sum)
+	acc.UpdatedAt = time.Now()
+
+	_, err = tx.NewUpdate().
+		Model(&acc).
+		WherePK().
+		Column("current_points_total", "withdrawn_total", "updated_at").
+		Returning("*").
+		Exec(ctx)
+	if err != nil {
+		tx.Rollback() //nolint:errcheck
+		return acc, err
+	}
+
+	if err = tx.Commit(); err != nil {
+		tx.Rollback() //nolint:errcheck
+		return acc, err
+	}
+
+	return acc, nil
 }
 
 func (s *Store) bootstrap(ctx context.Context) error {

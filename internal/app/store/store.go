@@ -2,12 +2,9 @@ package store
 
 import (
 	"context"
-	"errors"
 
-	"github.com/madatsci/gophermart/internal/app/config"
-	"github.com/madatsci/gophermart/internal/app/database"
 	"github.com/madatsci/gophermart/internal/app/models"
-	db "github.com/madatsci/gophermart/internal/app/store/database"
+	"github.com/shopspring/decimal"
 )
 
 type Store interface {
@@ -18,6 +15,7 @@ type Store interface {
 	// Accounts
 	CreateAccount(ctx context.Context, account models.Account) (models.Account, error)
 	GetAccountByUserID(ctx context.Context, userID string) (models.Account, error)
+	WithdrawBalance(ctx context.Context, userID string, sum decimal.Decimal) (models.Account, error)
 
 	// Orders
 	CreateOrder(ctx context.Context, order models.Order) (models.Order, error)
@@ -25,14 +23,12 @@ type Store interface {
 	ListOrdersByAccountID(ctx context.Context, accountID string, limit int) ([]models.Order, error)
 }
 
-func New(ctx context.Context, cfg *config.Config) (Store, error) {
-	if cfg.DatabaseURI != "" {
-		conn, err := database.NewClient(ctx, cfg.DatabaseURI)
-		if err != nil {
-			return nil, err
-		}
-		return db.New(ctx, conn)
-	}
+type NotEnoughBalanceError struct {
+	Err               error
+	Balance           decimal.Decimal
+	WithdrawRequested decimal.Decimal
+}
 
-	return nil, errors.New("database URI must be provided")
+func (e *NotEnoughBalanceError) Error() string {
+	return e.Err.Error()
 }

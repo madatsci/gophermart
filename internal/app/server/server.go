@@ -62,6 +62,7 @@ func New(config *config.Config, store store.Store, logger *zap.SugaredLogger) *S
 		r.Route("/api/user/balance", func(r chi.Router) {
 			r.Use(authMiddleware.PrivateAPIAuth)
 			r.Get("/", h.GetBalance)
+			r.Post("/withdraw", h.WithdrawPoints)
 		})
 	})
 

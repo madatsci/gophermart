@@ -212,3 +212,23 @@ Content-Length: 32
 
 {"current":"0","withdrawn":"0"}
 ```
+
+### Withdraw Balance
+
+```bash
+curl -i -X POST http://localhost:8080/api/user/balance/withdraw \
+   -b "auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnb3BoZXJtYXJ0IiwiZXhwIjoxNzMwNjUzMzI0LCJVc2VySUQiOiIxMWE4YjAzMi02NmM0LTQ1YWQtYTlhZS0xYjkwMWMxZDIzZmUifQ.wS9OUOD9WY0eI17G1q9puqusYf3UxMSdEF3_AA_hexI" \
+   -H "Content-Type: application/json" \
+   -d '{
+      "order": "2377225624",
+      "sum": 700
+   }'
+
+# Response:
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Tue, 05 Nov 2024 13:54:21 GMT
+Content-Length: 37
+
+{"current":"100","withdrawn":"1400"}
+```
