@@ -6,6 +6,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/madatsci/gophermart/internal/app/models"
 	"github.com/madatsci/gophermart/internal/app/store"
 	"github.com/shopspring/decimal"
@@ -99,7 +100,7 @@ func (s *Store) ListOrdersByAccountID(ctx context.Context, accountID string, lim
 }
 
 // WithdrawBalance withdraws points from balance if there are enough points.
-func (s *Store) WithdrawBalance(ctx context.Context, userID string, sum decimal.Decimal) (models.Account, error) {
+func (s *Store) WithdrawBalance(ctx context.Context, userID string, orderNumber string, sum decimal.Decimal) (models.Account, error) {
 	var acc models.Account
 
 	tx, err := s.conn.BeginTx(ctx, &sql.TxOptions{})
@@ -134,6 +135,24 @@ func (s *Store) WithdrawBalance(ctx context.Context, userID string, sum decimal.
 		WherePK().
 		Column("current_points_total", "withdrawn_total", "updated_at").
 		Returning("*").
+		Exec(ctx)
+	if err != nil {
+		tx.Rollback() //nolint:errcheck
+		return acc, err
+	}
+
+	transaction := models.Transaction{
+		ID:          uuid.NewString(),
+		AccountID:   acc.ID,
+		Amount:      sum,
+		OrderNumber: orderNumber,
+		Direction:   models.TxDirectionWithdrawal,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	_, err = tx.NewInsert().
+		Model(&transaction).
 		Exec(ctx)
 	if err != nil {
 		tx.Rollback() //nolint:errcheck

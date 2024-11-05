@@ -195,7 +195,14 @@ Content-Type: application/json
 Date: Mon, 04 Nov 2024 13:35:10 GMT
 Content-Length: 102
 
-[{"number":"1234567890003","status":"NEW","accrual":"0","uploaded_at":"2024-11-03T17:32:43.936343Z"}]
+[
+   {
+      "number":"1234567890003",
+      "status":"NEW",
+      "accrual":"0",
+      "uploaded_at":"2024-11-03T17:32:43.936343Z"
+   }
+]
 ```
 
 ### Get Balance
@@ -210,7 +217,10 @@ Content-Type: application/json
 Date: Mon, 04 Nov 2024 14:16:53 GMT
 Content-Length: 32
 
-{"current":"0","withdrawn":"0"}
+{
+   "current":"0",
+   "withdrawn":"0"
+}
 ```
 
 ### Withdraw Balance
@@ -230,7 +240,10 @@ Content-Type: application/json
 Date: Tue, 05 Nov 2024 13:54:21 GMT
 Content-Length: 37
 
-{"current":"100","withdrawn":"1400"}
+{
+   "current":"100",
+   "withdrawn":"1400"
+}
 ```
 
 ### Get Withdrawals
@@ -238,4 +251,23 @@ Content-Length: 37
 ```bash
 curl -i -X GET http://localhost:8080/api/user/withdrawals \
    -b "auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnb3BoZXJtYXJ0IiwiZXhwIjoxNzMwNjUzMzI0LCJVc2VySUQiOiIxMWE4YjAzMi02NmM0LTQ1YWQtYTlhZS0xYjkwMWMxZDIzZmUifQ.wS9OUOD9WY0eI17G1q9puqusYf3UxMSdEF3_AA_hexI"
+
+# Response:
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Tue, 05 Nov 2024 15:12:42 GMT
+Content-Length: 164
+
+[
+   {
+      "sum":"45.23",
+      "order":"12345678903",
+      "processed_at":"2024-11-05T15:12:36.772813Z"
+   },
+   {
+      "sum":"10",
+      "order":"2377225624",
+      "processed_at":"2024-11-05T15:11:24.553115Z"
+   }
+]
 ```

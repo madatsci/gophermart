@@ -72,7 +72,7 @@ func (h *Handlers) WithdrawPoints(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	acc, err := h.s.WithdrawBalance(r.Context(), userID, request.Sum)
+	acc, err := h.s.WithdrawBalance(r.Context(), userID, request.Order, request.Sum)
 	if err != nil {
 		h.handleError("WithdrawPoints", err)
 
