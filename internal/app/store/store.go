@@ -21,6 +21,9 @@ type Store interface {
 	CreateOrder(ctx context.Context, order models.Order) (models.Order, error)
 	GetOrderByNumber(ctx context.Context, orderNumber string) (models.Order, error)
 	ListOrdersByAccountID(ctx context.Context, accountID string, limit int) ([]models.Order, error)
+
+	// Transactions
+	GetWithdrawals(ctx context.Context, accountID string, direction models.TxDirection, limit int) ([]models.Transaction, error)
 }
 
 type NotEnoughBalanceError struct {

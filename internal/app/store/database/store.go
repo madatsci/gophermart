@@ -98,6 +98,7 @@ func (s *Store) ListOrdersByAccountID(ctx context.Context, accountID string, lim
 	return result, err
 }
 
+// WithdrawBalance withdraws points from balance if there are enough points.
 func (s *Store) WithdrawBalance(ctx context.Context, userID string, sum decimal.Decimal) (models.Account, error) {
 	var acc models.Account
 
@@ -145,6 +146,21 @@ func (s *Store) WithdrawBalance(ctx context.Context, userID string, sum decimal.
 	}
 
 	return acc, nil
+}
+
+// GetWithdrawals fetches all transactions of specified direction
+func (s *Store) GetWithdrawals(ctx context.Context, accountID string, direction models.TxDirection, limit int) ([]models.Transaction, error) {
+	var result []models.Transaction
+
+	err := s.conn.NewSelect().
+		Model(&result).
+		Where("account_id = ?", accountID).
+		Where("direction = ?", direction).
+		Order("created_at DESC").
+		Limit(limit).
+		Scan(ctx)
+
+	return result, err
 }
 
 func (s *Store) bootstrap(ctx context.Context) error {

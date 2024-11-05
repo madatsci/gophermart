@@ -232,3 +232,10 @@ Content-Length: 37
 
 {"current":"100","withdrawn":"1400"}
 ```
+
+### Get Withdrawals
+
+```bash
+curl -i -X GET http://localhost:8080/api/user/withdrawals \
+   -b "auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnb3BoZXJtYXJ0IiwiZXhwIjoxNzMwNjUzMzI0LCJVc2VySUQiOiIxMWE4YjAzMi02NmM0LTQ1YWQtYTlhZS0xYjkwMWMxZDIzZmUifQ.wS9OUOD9WY0eI17G1q9puqusYf3UxMSdEF3_AA_hexI"
+```

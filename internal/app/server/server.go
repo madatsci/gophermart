@@ -64,6 +64,11 @@ func New(config *config.Config, store store.Store, logger *zap.SugaredLogger) *S
 			r.Get("/", h.GetBalance)
 			r.Post("/withdraw", h.WithdrawPoints)
 		})
+		// Withdrawals
+		r.Route("/api/user/withdrawals", func(r chi.Router) {
+			r.Use(authMiddleware.PrivateAPIAuth)
+			r.Get("/", h.GetWithdrawals)
+		})
 	})
 
 	server := &Server{
