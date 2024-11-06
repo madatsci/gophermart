@@ -128,9 +128,11 @@ func (s *Store) UpdateOrder(ctx context.Context, order models.Order, prevStatus 
 		For("UPDATE").
 		Scan(ctx)
 	if err != nil {
+		tx.Rollback() //nolint:errcheck
 		return checkOrder, err
 	}
 	if checkOrder.Status != prevStatus {
+		tx.Rollback() //nolint:errcheck
 		return checkOrder, errors.New("sql: update conflict")
 	}
 
@@ -141,6 +143,12 @@ func (s *Store) UpdateOrder(ctx context.Context, order models.Order, prevStatus 
 		Returning("*").
 		Exec(ctx)
 	if err != nil {
+		tx.Rollback() //nolint:errcheck
+		return checkOrder, err
+	}
+
+	if err = tx.Commit(); err != nil {
+		tx.Rollback() //nolint:errcheck
 		return checkOrder, err
 	}
 
