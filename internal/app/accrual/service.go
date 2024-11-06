@@ -70,6 +70,13 @@ func (a *AccrualService) SyncOrders(ctx context.Context) error {
 				a.logError(o.Number, err)
 				continue
 			}
+
+			a.logger.With(
+				"number", o.Number,
+				"prev_status", prevStatus,
+				"new_status", newStatus,
+				"accrual", o.Accrual,
+			).Info("updated order")
 		}
 	}
 
