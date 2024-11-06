@@ -71,6 +71,11 @@ func (a *AccrualService) SyncOrders(ctx context.Context) error {
 				continue
 			}
 
+			_, err = a.store.AddBalance(ctx, o)
+			if err != nil {
+				a.logger.With("number", o.Number, "err", err).Errorln("could not add accrued points to balance")
+			}
+
 			a.logger.With(
 				"number", o.Number,
 				"prev_status", prevStatus,

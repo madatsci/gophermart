@@ -167,8 +167,10 @@ func (s *Store) WithdrawBalance(ctx context.Context, userID string, orderNumber 
 	err = tx.NewSelect().
 		Model(&acc).
 		Where("user_id = ?", userID).
+		For("UPDATE").
 		Scan(ctx)
 	if err != nil {
+		tx.Rollback() //nolint:errcheck
 		return acc, err
 	}
 
@@ -236,6 +238,65 @@ func (s *Store) GetWithdrawals(ctx context.Context, accountID string, direction 
 		Scan(ctx)
 
 	return result, err
+}
+
+// AddBalance adds accrued points for order to account balance.
+func (s *Store) AddBalance(ctx context.Context, order models.Order) (models.Account, error) {
+	var acc models.Account
+
+	tx, err := s.conn.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return acc, err
+	}
+
+	err = tx.NewSelect().
+		Model(&acc).
+		Where("id = ?", order.AccountID).
+		For("UPDATE").
+		Scan(ctx)
+	if err != nil {
+		tx.Rollback() //nolint:errcheck
+		return acc, err
+	}
+
+	acc.CurrentPointsTotal = acc.CurrentPointsTotal.Sub(order.Accrual)
+	acc.UpdatedAt = time.Now()
+
+	_, err = tx.NewUpdate().
+		Model(&acc).
+		WherePK().
+		Column("current_points_total", "updated_at").
+		Returning("*").
+		Exec(ctx)
+	if err != nil {
+		tx.Rollback() //nolint:errcheck
+		return acc, err
+	}
+
+	transaction := models.Transaction{
+		ID:          uuid.NewString(),
+		AccountID:   acc.ID,
+		Amount:      order.Accrual,
+		OrderNumber: order.Number,
+		Direction:   models.TxDirectionAccrual,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	_, err = tx.NewInsert().
+		Model(&transaction).
+		Exec(ctx)
+	if err != nil {
+		tx.Rollback() //nolint:errcheck
+		return acc, err
+	}
+
+	if err = tx.Commit(); err != nil {
+		tx.Rollback() //nolint:errcheck
+		return acc, err
+	}
+
+	return acc, nil
 }
 
 func (s *Store) bootstrap(ctx context.Context) error {

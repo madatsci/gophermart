@@ -16,6 +16,7 @@ type Store interface {
 	CreateAccount(ctx context.Context, account models.Account) (models.Account, error)
 	GetAccountByUserID(ctx context.Context, userID string) (models.Account, error)
 	WithdrawBalance(ctx context.Context, userID string, orderNumber string, sum decimal.Decimal) (models.Account, error)
+	AddBalance(ctx context.Context, order models.Order) (models.Account, error)
 
 	// Orders
 	CreateOrder(ctx context.Context, order models.Order) (models.Order, error)
