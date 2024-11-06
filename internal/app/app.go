@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/madatsci/gophermart/internal/app/accrual"
 	"github.com/madatsci/gophermart/internal/app/config"
 	"github.com/madatsci/gophermart/internal/app/database"
 	"github.com/madatsci/gophermart/internal/app/logger"
@@ -19,6 +20,8 @@ type (
 		config *config.Config
 		server *server.Server
 		store  store.Store
+		// TODO use interface
+		as     *accrual.AccrualService
 		logger *zap.SugaredLogger
 	}
 
@@ -51,6 +54,7 @@ func New(ctx context.Context, opts Options) (*App, error) {
 		config: config,
 		logger: log,
 		store:  store,
+		as:     accrual.New(config, store, log),
 		server: srv,
 	}
 
@@ -58,13 +62,30 @@ func New(ctx context.Context, opts Options) (*App, error) {
 }
 
 // Start starts the application.
-func (a *App) Start() error {
+func (a *App) Start(ctx context.Context) error {
+	go a.syncOrders(ctx)
 	return a.server.Start()
 }
 
 // Store is used for migrations.
 func (a *App) Store() store.Store {
 	return a.store
+}
+
+func (a *App) syncOrders(ctx context.Context) {
+	ticker := time.NewTicker(30 * time.Second)
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			err := a.as.SyncOrders(ctx)
+			if err != nil {
+				a.logger.With("err", err).Errorln("could not sync orders")
+			}
+		}
+	}
 }
 
 func newStore(ctx context.Context, cfg *config.Config) (store.Store, error) {

@@ -21,6 +21,8 @@ type Store interface {
 	CreateOrder(ctx context.Context, order models.Order) (models.Order, error)
 	GetOrderByNumber(ctx context.Context, orderNumber string) (models.Order, error)
 	ListOrdersByAccountID(ctx context.Context, accountID string, limit int) ([]models.Order, error)
+	ListOrdersByStatus(ctx context.Context, statuses []models.OrderStatus, limit int) ([]models.Order, error)
+	UpdateOrder(ctx context.Context, order models.Order, prevStatus models.OrderStatus) (models.Order, error)
 
 	// Transactions
 	GetWithdrawals(ctx context.Context, accountID string, direction models.TxDirection, limit int) ([]models.Transaction, error)

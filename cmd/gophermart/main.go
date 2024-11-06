@@ -23,7 +23,7 @@ func main() {
 		panic(err)
 	}
 
-	if err = app.Start(); err != nil {
+	if err = app.Start(context.Background()); err != nil {
 		panic(err)
 	}
 }

@@ -99,6 +99,54 @@ func (s *Store) ListOrdersByAccountID(ctx context.Context, accountID string, lim
 	return result, err
 }
 
+// ListOrdersByStatus fetches orders in specified statuses.
+func (s *Store) ListOrdersByStatus(ctx context.Context, statuses []models.OrderStatus, limit int) ([]models.Order, error) {
+	var result []models.Order
+
+	err := s.conn.NewSelect().
+		Model(&result).
+		Where("status IN (?)", bun.In(statuses)).
+		Order("created_at ASC").
+		Limit(limit).
+		Scan(ctx)
+
+	return result, err
+}
+
+// UpdateOrder updates order in database.
+func (s *Store) UpdateOrder(ctx context.Context, order models.Order, prevStatus models.OrderStatus) (models.Order, error) {
+	var checkOrder models.Order
+
+	tx, err := s.conn.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return checkOrder, err
+	}
+
+	err = tx.NewSelect().
+		Model(&checkOrder).
+		Where("id = ?", order.ID).
+		For("UPDATE").
+		Scan(ctx)
+	if err != nil {
+		return checkOrder, err
+	}
+	if checkOrder.Status != prevStatus {
+		return checkOrder, errors.New("sql: update conflict")
+	}
+
+	_, err = tx.NewUpdate().
+		Model(&order).
+		WherePK().
+		Column("status", "accrual", "updated_at").
+		Returning("*").
+		Exec(ctx)
+	if err != nil {
+		return checkOrder, err
+	}
+
+	return order, nil
+}
+
 // WithdrawBalance withdraws points from balance if there are enough points.
 func (s *Store) WithdrawBalance(ctx context.Context, userID string, orderNumber string, sum decimal.Decimal) (models.Account, error) {
 	var acc models.Account
