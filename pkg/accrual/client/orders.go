@@ -2,15 +2,19 @@ package client
 
 import "github.com/shopspring/decimal"
 
-type (
-	OrderResponse struct {
-		Order   string          `json:"order"`
-		Status  OrderStatus     `json:"status"`
-		Accrual decimal.Decimal `json:"accrual"`
-	}
+// OrderResponse represents order object that is received from accrual service.
+type OrderResponse struct {
+	Order   string          `json:"order"`
+	Status  OrderStatus     `json:"status"`
+	Accrual decimal.Decimal `json:"accrual"`
+}
 
-	OrderStatus string
-)
+// IsFinalStatus returns true if the order is in its final status.
+func (o OrderResponse) IsFinalStatus() bool {
+	return o.Status == OrderStatusProcessed || o.Status == OrderStatusInvalid
+}
+
+type OrderStatus string
 
 const (
 	OrderStatusRegistered OrderStatus = "REGISTERED"
