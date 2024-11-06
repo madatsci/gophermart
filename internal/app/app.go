@@ -20,8 +20,7 @@ type (
 		config *config.Config
 		server *server.Server
 		store  store.Store
-		// TODO use interface
-		as     *accrual.AccrualService
+		as     AccrualService
 		logger *zap.SugaredLogger
 	}
 
@@ -31,6 +30,10 @@ type (
 		DatabaseURI          string
 		TokenSecret          []byte
 		TokenDuration        time.Duration
+	}
+
+	AccrualService interface {
+		SyncOrders(ctx context.Context) error
 	}
 )
 
