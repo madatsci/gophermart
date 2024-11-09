@@ -13,7 +13,7 @@ import (
 
 var (
 	RunAddress           = "localhost:8080"
-	AccrualSystemAddress = "localhost:8081"
+	AccrualSystemAddress = "http://localhost:8081"
 
 	DatabaseURI string
 
