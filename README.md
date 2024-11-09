@@ -199,7 +199,7 @@ Content-Length: 102
    {
       "number":"1234567890003",
       "status":"NEW",
-      "accrual":"0",
+      "accrual":0,
       "uploaded_at":"2024-11-03T17:32:43.936343Z"
    }
 ]
@@ -218,8 +218,8 @@ Date: Mon, 04 Nov 2024 14:16:53 GMT
 Content-Length: 32
 
 {
-   "current":"0",
-   "withdrawn":"0"
+   "current":0,
+   "withdrawn":0
 }
 ```
 
@@ -241,8 +241,8 @@ Date: Tue, 05 Nov 2024 13:54:21 GMT
 Content-Length: 37
 
 {
-   "current":"100",
-   "withdrawn":"1400"
+   "current":100,
+   "withdrawn":1400
 }
 ```
 
@@ -260,12 +260,12 @@ Content-Length: 164
 
 [
    {
-      "sum":"45.23",
+      "sum":45.23,
       "order":"12345678903",
       "processed_at":"2024-11-05T15:12:36.772813Z"
    },
    {
-      "sum":"10",
+      "sum":10,
       "order":"2377225624",
       "processed_at":"2024-11-05T15:11:24.553115Z"
    }

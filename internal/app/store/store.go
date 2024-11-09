@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/madatsci/gophermart/internal/app/models"
-	"github.com/shopspring/decimal"
 )
 
 type Store interface {
@@ -15,7 +14,7 @@ type Store interface {
 	// Accounts
 	CreateAccount(ctx context.Context, account models.Account) (models.Account, error)
 	GetAccountByUserID(ctx context.Context, userID string) (models.Account, error)
-	WithdrawBalance(ctx context.Context, userID string, orderNumber string, sum decimal.Decimal) (models.Account, error)
+	WithdrawBalance(ctx context.Context, userID string, orderNumber string, sum float32) (models.Account, error)
 	AddBalance(ctx context.Context, order models.Order) (models.Account, error)
 
 	// Orders
@@ -31,8 +30,8 @@ type Store interface {
 
 type NotEnoughBalanceError struct {
 	Err               error
-	Balance           decimal.Decimal
-	WithdrawRequested decimal.Decimal
+	Balance           float32
+	WithdrawRequested float32
 }
 
 func (e *NotEnoughBalanceError) Error() string {

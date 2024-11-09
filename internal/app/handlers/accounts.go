@@ -9,7 +9,6 @@ import (
 	"github.com/madatsci/gophermart/internal/app/store"
 	"github.com/madatsci/gophermart/pkg/luhn"
 	"github.com/pkg/errors"
-	"github.com/shopspring/decimal"
 )
 
 // GetBalance returns user account balance.
@@ -62,7 +61,7 @@ func (h *Handlers) WithdrawPoints(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if request.Order == "" || request.Sum.Cmp(decimal.NewFromInt(0)) != 1 {
+	if request.Order == "" || request.Sum <= 0 {
 		h.handleError("WithdrawPoints", errors.New("invalid parameters"))
 		w.WriteHeader(http.StatusBadRequest)
 		return

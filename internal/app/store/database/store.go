@@ -9,7 +9,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/madatsci/gophermart/internal/app/models"
 	"github.com/madatsci/gophermart/internal/app/store"
-	"github.com/shopspring/decimal"
 	"github.com/uptrace/bun"
 )
 
@@ -156,7 +155,7 @@ func (s *Store) UpdateOrder(ctx context.Context, order models.Order, prevStatus 
 }
 
 // WithdrawBalance withdraws points from balance if there are enough points.
-func (s *Store) WithdrawBalance(ctx context.Context, userID string, orderNumber string, sum decimal.Decimal) (models.Account, error) {
+func (s *Store) WithdrawBalance(ctx context.Context, userID string, orderNumber string, sum float32) (models.Account, error) {
 	var acc models.Account
 
 	tx, err := s.conn.BeginTx(ctx, &sql.TxOptions{})
@@ -174,7 +173,7 @@ func (s *Store) WithdrawBalance(ctx context.Context, userID string, orderNumber 
 		return acc, err
 	}
 
-	if acc.CurrentPointsTotal.Cmp(sum) == -1 {
+	if acc.CurrentPointsTotal < sum {
 		tx.Rollback() //nolint:errcheck
 
 		return acc, &store.NotEnoughBalanceError{
@@ -184,8 +183,8 @@ func (s *Store) WithdrawBalance(ctx context.Context, userID string, orderNumber 
 		}
 	}
 
-	acc.CurrentPointsTotal = acc.CurrentPointsTotal.Sub(sum)
-	acc.WithdrawnTotal = acc.WithdrawnTotal.Add(sum)
+	acc.CurrentPointsTotal = acc.CurrentPointsTotal - sum
+	acc.WithdrawnTotal = acc.WithdrawnTotal + sum
 	acc.UpdatedAt = time.Now()
 
 	_, err = tx.NewUpdate().
@@ -259,7 +258,7 @@ func (s *Store) AddBalance(ctx context.Context, order models.Order) (models.Acco
 		return acc, err
 	}
 
-	acc.CurrentPointsTotal = acc.CurrentPointsTotal.Sub(order.Accrual)
+	acc.CurrentPointsTotal = acc.CurrentPointsTotal + order.Accrual
 	acc.UpdatedAt = time.Now()
 
 	_, err = tx.NewUpdate().
