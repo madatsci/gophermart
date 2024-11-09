@@ -36,10 +36,11 @@ func (e *RequestError) Error() string {
 	return e.Err.Error()
 }
 
-func New(config *config.Config) *Client {
+func New(config *config.Config, logger *zap.SugaredLogger) *Client {
 	return &Client{
 		baseURL: config.AccrualSystemAddress,
 		http:    &http.Client{},
+		log:     logger,
 	}
 }
 
