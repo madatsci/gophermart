@@ -29,7 +29,7 @@ const syncOrdersLimit = 10
 // New creates new accrual service.
 func New(config *config.Config, store store.Store, logger *zap.SugaredLogger) *AccrualService {
 	return &AccrualService{
-		client: client.New(config),
+		client: client.New(config, logger),
 		store:  store,
 		logger: logger,
 	}

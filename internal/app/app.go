@@ -76,7 +76,7 @@ func (a *App) Store() store.Store {
 }
 
 func (a *App) syncOrders(ctx context.Context) {
-	ticker := time.NewTicker(30 * time.Second)
+	ticker := time.NewTicker(a.config.AccrualFetchPeriod)
 
 	for {
 		select {

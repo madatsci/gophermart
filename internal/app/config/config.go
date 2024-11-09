@@ -6,11 +6,11 @@ type Config struct {
 	RunAddress           string
 	AccrualSystemAddress string
 	DatabaseURI          string
+	AccrualFetchPeriod   time.Duration
 
-	TokenSecret   []byte
-	TokenDuration time.Duration
-	TokenIssuer   string
-
+	TokenSecret    []byte
+	TokenDuration  time.Duration
+	TokenIssuer    string
 	AuthCookieName string
 }
 
@@ -20,11 +20,11 @@ func New(runAddress, accrualSystemAddress, databaseURI string, tokenSecret []byt
 		RunAddress:           runAddress,
 		AccrualSystemAddress: accrualSystemAddress,
 		DatabaseURI:          databaseURI,
+		AccrualFetchPeriod:   20 * time.Second,
 
-		TokenSecret:   tokenSecret,
-		TokenDuration: tokenDuration,
-		TokenIssuer:   "gophermart",
-
+		TokenSecret:    tokenSecret,
+		TokenDuration:  tokenDuration,
+		TokenIssuer:    "gophermart",
 		AuthCookieName: "auth_token",
 	}
 }
