@@ -18,7 +18,7 @@ type Store interface {
 	AddBalance(ctx context.Context, order models.Order) (models.Account, error)
 
 	// Orders
-	CreateOrder(ctx context.Context, order models.Order) (models.Order, error)
+	CreateOrder(ctx context.Context, order *models.Order) error
 	GetOrderByNumber(ctx context.Context, orderNumber string) (models.Order, error)
 	ListOrdersByAccountID(ctx context.Context, accountID string, limit int) ([]models.Order, error)
 	ListOrdersByStatus(ctx context.Context, statuses []models.OrderStatus, limit int) ([]models.Order, error)

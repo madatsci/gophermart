@@ -63,12 +63,8 @@ func (s *Store) GetAccountByUserID(ctx context.Context, userID string) (models.A
 }
 
 // CreateOrder saves new order in database.
-func (s *Store) CreateOrder(ctx context.Context, order models.Order) (models.Order, error) {
-	var result models.Order
-
-	err := s.conn.NewInsert().Model(&order).Returning("*").Scan(ctx, &result)
-
-	return result, err
+func (s *Store) CreateOrder(ctx context.Context, order *models.Order) error {
+	return s.conn.NewInsert().Model(&order).Returning("*").Scan(ctx, &order)
 }
 
 // GetOrderByNumber fetches order by its number.

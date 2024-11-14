@@ -62,8 +62,7 @@ func (h *Handlers) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		UpdatedAt: time.Now(),
 	}
 
-	_, err = h.s.CreateOrder(r.Context(), order)
-	if err != nil {
+	if err = h.s.CreateOrder(r.Context(), &order); err != nil {
 		var pgErr pgdriver.Error
 		if errors.As(err, &pgErr) && pgErr.IntegrityViolation() {
 			order, err = h.s.GetOrderByNumber(r.Context(), orderNumber)
