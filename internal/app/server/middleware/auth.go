@@ -47,9 +47,9 @@ func (a *Auth) PrivateAPIAuth(next http.Handler) http.Handler {
 			if err == http.ErrNoCookie {
 				a.handleUnauthorized(w, errors.New("no authorisation cookie"))
 				return
-			} else {
-				w.WriteHeader(http.StatusInternalServerError)
 			}
+
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
