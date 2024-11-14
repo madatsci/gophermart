@@ -295,7 +295,11 @@ func (s *Store) AddBalance(ctx context.Context, order models.Order) (models.Acco
 }
 
 func (s *Store) bootstrap(ctx context.Context) error {
-	return Migrate(ctx, s.conn)
+	migrations, err := NewMigrations(s.conn)
+	if err != nil {
+		return err
+	}
+	return migrations.Migrate(ctx)
 }
 
 // Conn is used for migrations.

@@ -9,7 +9,6 @@ import (
 
 	"github.com/madatsci/gophermart/internal/app"
 	"github.com/madatsci/gophermart/internal/app/store/database"
-	"github.com/uptrace/bun"
 	"github.com/urfave/cli/v2"
 )
 
@@ -38,9 +37,9 @@ func main() {
 					Name:  "create_sql",
 					Usage: "create SQL transaction",
 					Action: func(cliCtx *cli.Context) error {
-						return run(cliCtx, func(ctx context.Context, conn *bun.DB) error {
+						return run(cliCtx, func(ctx context.Context, m *database.Migrations) error {
 							name := strings.Join(cliCtx.Args().Slice(), "_")
-							return database.CreateMigration(ctx, conn, name)
+							return m.CreateMigration(ctx, name)
 						})
 					},
 				},
@@ -48,8 +47,8 @@ func main() {
 					Name:  "migrate",
 					Usage: "migrate database",
 					Action: func(cliCtx *cli.Context) error {
-						return run(cliCtx, func(ctx context.Context, conn *bun.DB) error {
-							return database.Migrate(ctx, conn)
+						return run(cliCtx, func(ctx context.Context, m *database.Migrations) error {
+							return m.Migrate(ctx)
 						})
 					},
 				},
@@ -57,8 +56,8 @@ func main() {
 					Name:  "rollback",
 					Usage: "rollback the last migration group",
 					Action: func(cliCtx *cli.Context) error {
-						return run(cliCtx, func(ctx context.Context, conn *bun.DB) error {
-							return database.Rollback(ctx, conn)
+						return run(cliCtx, func(ctx context.Context, m *database.Migrations) error {
+							return m.Rollback(ctx)
 						})
 					},
 				},
@@ -71,7 +70,7 @@ func main() {
 	}
 }
 
-func run(cliCtx *cli.Context, fn func(ctx context.Context, conn *bun.DB) error) error {
+func run(cliCtx *cli.Context, fn func(ctx context.Context, m *database.Migrations) error) error {
 	ctx := cliCtx.Context
 
 	app, err := app.New(ctx, app.Options{
@@ -86,5 +85,10 @@ func run(cliCtx *cli.Context, fn func(ctx context.Context, conn *bun.DB) error) 
 		return errors.New("database store must be used for migrations")
 	}
 
-	return fn(ctx, store.Conn())
+	m, err := database.NewMigrations(store.Conn())
+	if err != nil {
+		return err
+	}
+
+	return fn(ctx, m)
 }

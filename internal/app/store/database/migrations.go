@@ -9,26 +9,33 @@ import (
 	"github.com/uptrace/bun/migrate"
 )
 
-var migrations = migrate.NewMigrations(migrate.WithMigrationsDirectory("internal/app/store/database/migrations"))
+type Migrations struct {
+	migrator *migrate.Migrator
+}
 
 //go:embed migrations/*.sql
 var sqlMigrations embed.FS
 
-func init() {
+// NewMigrations creates new Migrations.
+func NewMigrations(conn *bun.DB) (*Migrations, error) {
+	migrations := migrate.NewMigrations(migrate.WithMigrationsDirectory("internal/app/store/database/migrations"))
 	if err := migrations.Discover(sqlMigrations); err != nil {
-		panic(err)
+		return nil, err
 	}
+
+	return &Migrations{
+		migrator: migrate.NewMigrator(conn, migrations),
+	}, nil
 }
 
-func Migrate(ctx context.Context, conn *bun.DB) error {
-	migrator := migrate.NewMigrator(conn, migrations)
-
-	err := migrator.Init(ctx)
+// Migrate executes new migrations.
+func (m *Migrations) Migrate(ctx context.Context) error {
+	err := m.migrator.Init(ctx)
 	if err != nil {
 		return err
 	}
 
-	group, err := migrator.Migrate(ctx)
+	group, err := m.migrator.Migrate(ctx)
 	if err != nil {
 		return err
 	}
@@ -42,10 +49,9 @@ func Migrate(ctx context.Context, conn *bun.DB) error {
 	return nil
 }
 
-func Rollback(ctx context.Context, conn *bun.DB) error {
-	migrator := migrate.NewMigrator(conn, migrations)
-
-	group, err := migrator.Rollback(ctx)
+// Rollback rollbacks last migration group
+func (m *Migrations) Rollback(ctx context.Context) error {
+	group, err := m.migrator.Rollback(ctx)
 	if err != nil {
 		return err
 	}
@@ -59,10 +65,9 @@ func Rollback(ctx context.Context, conn *bun.DB) error {
 	return nil
 }
 
-func CreateMigration(ctx context.Context, conn *bun.DB, name string) error {
-	migrator := migrate.NewMigrator(conn, migrations)
-
-	files, err := migrator.CreateSQLMigrations(ctx, name)
+// CreateMigration creates new migration.
+func (m *Migrations) CreateMigration(ctx context.Context, name string) error {
+	files, err := m.migrator.CreateSQLMigrations(ctx, name)
 	if err != nil {
 		return err
 	}
