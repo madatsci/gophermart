@@ -76,6 +76,7 @@ func (a *App) Store() store.Store {
 }
 
 func (a *App) syncOrders(ctx context.Context) {
+	a.logger.Info("starting orders sync")
 	ticker := time.NewTicker(a.config.AccrualFetchPeriod)
 
 	for {
@@ -86,6 +87,13 @@ func (a *App) syncOrders(ctx context.Context) {
 			err := a.as.SyncOrders(ctx)
 			if err != nil {
 				a.logger.With("err", err).Errorln("could not sync orders")
+				var accrualErr *accrual.ErrTooManyRequests
+				if errors.As(err, &accrualErr) {
+					a.logger.With("err", err).Info("pausing orders sync")
+					ticker.Stop()
+					time.Sleep(accrualErr.RetryAfter)
+					ticker = time.NewTicker(a.config.AccrualFetchPeriod)
+				}
 			}
 		}
 	}

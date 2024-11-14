@@ -29,6 +29,7 @@ type (
 		Err          error
 		StatusCode   int
 		ResponseBody []byte
+		RetryAfter   time.Duration
 	}
 )
 
@@ -77,12 +78,24 @@ func (c *Client) doRequest(method string, r RequestOptions) (string, error) {
 		}
 	}
 
-	if res.StatusCode < 200 || res.StatusCode > 299 {
-		return "", &RequestError{
+	if res.StatusCode != http.StatusOK {
+		reqErr := &RequestError{
 			Err:          fmt.Errorf("bad response code for [%s] %d: %s", req.URL, res.StatusCode, resBody),
 			StatusCode:   res.StatusCode,
 			ResponseBody: resBody,
 		}
+		if res.StatusCode == http.StatusTooManyRequests {
+			if durationStr := res.Header.Get("Retry-After"); durationStr != "" {
+				duration, err := time.ParseDuration(durationStr + "s")
+				if err != nil {
+					c.log.Errorf("could not parse duration from response header: %s", durationStr)
+				} else {
+					reqErr.RetryAfter = duration
+				}
+			}
+		}
+
+		return "", reqErr
 	}
 
 	if err := json.Unmarshal(resBody, r.Result); err != nil {

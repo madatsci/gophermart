@@ -2,7 +2,9 @@ package accrual
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/madatsci/gophermart/internal/app/config"
@@ -49,6 +51,21 @@ func (a *AccrualService) SyncOrders(ctx context.Context) error {
 
 		or, err := a.client.GetOrder(o.Number)
 		if err != nil {
+			var requestErr *client.RequestError
+			if errors.As(err, &requestErr) {
+				if requestErr.StatusCode == http.StatusNoContent {
+					a.logError(o.Number, errors.New("order is not registered in accrual system"))
+					continue
+				}
+				if requestErr.StatusCode == http.StatusTooManyRequests && requestErr.RetryAfter != 0 {
+					err = &ErrTooManyRequests{
+						RetryAfter: requestErr.RetryAfter,
+					}
+					a.logError(o.Number, err)
+
+					return err
+				}
+			}
 			a.logError(o.Number, err)
 			continue
 		}
@@ -105,4 +122,12 @@ func mapOrderStatus(accrualOrderStatus client.OrderStatus) (models.OrderStatus, 
 	default:
 		return "", fmt.Errorf("unknown order status received from accrual system: %s", accrualOrderStatus)
 	}
+}
+
+type ErrTooManyRequests struct {
+	RetryAfter time.Duration
+}
+
+func (e *ErrTooManyRequests) Error() string {
+	return fmt.Sprintf("too many requests, retry after %s", e.RetryAfter)
 }
