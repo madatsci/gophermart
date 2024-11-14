@@ -16,7 +16,7 @@ import (
 
 type (
 	AccrualService struct {
-		client *client.Client
+		client AccrualProvider
 		store  store.Store
 		logger *zap.SugaredLogger
 	}
