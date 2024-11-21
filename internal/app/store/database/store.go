@@ -31,8 +31,11 @@ func (s *Store) CreateUser(ctx context.Context, user models.User) (models.User, 
 	var result models.User
 
 	err := s.conn.NewInsert().Model(&user).Returning("*").Scan(ctx, &result)
+	if err != nil {
+		return result, &store.InsertError{Err: err}
+	}
 
-	return result, &store.InsertError{Err: err}
+	return result, nil
 }
 
 // GetUserByLogin fetches user from database by login.
