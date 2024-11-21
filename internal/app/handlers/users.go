@@ -9,8 +9,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/madatsci/gophermart/internal/app/models"
+	"github.com/madatsci/gophermart/internal/app/store"
 	"github.com/madatsci/gophermart/pkg/hash"
-	"github.com/uptrace/bun/driver/pgdriver"
 )
 
 var (
@@ -50,8 +50,8 @@ func (h *Handlers) RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	_, err = h.s.CreateUser(r.Context(), user)
 	if err != nil {
-		var pgErr pgdriver.Error
-		if errors.As(err, &pgErr) && pgErr.IntegrityViolation() {
+		var sErr store.StoreError
+		if errors.As(err, &sErr) && sErr.IntegrityViolation() {
 			h.handleError("RegisterUser", errors.New("user already exists"))
 			w.WriteHeader(http.StatusConflict)
 			return

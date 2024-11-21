@@ -2,8 +2,10 @@ package store
 
 import (
 	"context"
+	"errors"
 
 	"github.com/madatsci/gophermart/internal/app/models"
+	"github.com/uptrace/bun/driver/pgdriver"
 )
 
 type Store interface {
@@ -36,4 +38,21 @@ type NotEnoughBalanceError struct {
 
 func (e *NotEnoughBalanceError) Error() string {
 	return e.Err.Error()
+}
+
+type InsertError struct {
+	Err error
+}
+
+func (e *InsertError) Error() string {
+	return e.Err.Error()
+}
+
+func (e *InsertError) IntegrityViolation() bool {
+	var pgErr pgdriver.Error
+	return errors.As(e.Err, &pgErr) && pgErr.IntegrityViolation()
+}
+
+type StoreError interface {
+	IntegrityViolation() bool
 }
