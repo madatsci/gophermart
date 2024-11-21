@@ -43,14 +43,15 @@ func TestRegisterUserHandler(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		resp := httptest.NewRecorder()
+		r := httptest.NewRecorder()
 
-		h.RegisterUser(resp, req)
-		defer resp.Result().Body.Close()
+		h.RegisterUser(r, req)
+		resp := r.Result()
+		defer resp.Body.Close()
 
-		assert.Equal(t, http.StatusOK, resp.Result().StatusCode, "unexpected response code")
+		assert.Equal(t, http.StatusOK, resp.StatusCode, "unexpected response code")
 
-		cookies := resp.Result().Cookies()
+		cookies := resp.Cookies()
 		assert.Equal(t, 1, len(cookies), "expected auth cookie in response")
 		found := false
 		for _, c := range cookies {
@@ -69,12 +70,13 @@ func TestRegisterUserHandler(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		resp := httptest.NewRecorder()
+		r := httptest.NewRecorder()
 
-		h.RegisterUser(resp, req)
-		defer resp.Result().Body.Close()
+		h.RegisterUser(r, req)
+		resp := r.Result()
+		defer resp.Body.Close()
 
-		assert.Equal(t, http.StatusBadRequest, resp.Result().StatusCode, "unexpected response code")
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "unexpected response code")
 	})
 
 	t.Run("bad request (empty fields)", func(t *testing.T) {
@@ -82,12 +84,13 @@ func TestRegisterUserHandler(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		resp := httptest.NewRecorder()
+		r := httptest.NewRecorder()
 
-		h.RegisterUser(resp, req)
-		defer resp.Result().Body.Close()
+		h.RegisterUser(r, req)
+		resp := r.Result()
+		defer resp.Body.Close()
 
-		assert.Equal(t, http.StatusBadRequest, resp.Result().StatusCode, "unexpected response code")
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "unexpected response code")
 	})
 
 	t.Run("user already exists", func(t *testing.T) {
@@ -97,12 +100,13 @@ func TestRegisterUserHandler(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		resp := httptest.NewRecorder()
+		r := httptest.NewRecorder()
 
-		h.RegisterUser(resp, req)
-		defer resp.Result().Body.Close()
+		h.RegisterUser(r, req)
+		resp := r.Result()
+		defer resp.Body.Close()
 
-		assert.Equal(t, http.StatusConflict, resp.Result().StatusCode, "unexpected response code")
+		assert.Equal(t, http.StatusConflict, resp.StatusCode, "unexpected response code")
 	})
 }
 
@@ -131,14 +135,15 @@ func TestLoginUserHandler(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		resp := httptest.NewRecorder()
+		r := httptest.NewRecorder()
 
-		h.LoginUser(resp, req)
-		defer resp.Result().Body.Close()
+		h.LoginUser(r, req)
+		resp := r.Result()
+		defer resp.Body.Close()
 
-		assert.Equal(t, http.StatusOK, resp.Result().StatusCode, "unexpected response code")
+		assert.Equal(t, http.StatusOK, resp.StatusCode, "unexpected response code")
 
-		cookies := resp.Result().Cookies()
+		cookies := resp.Cookies()
 		assert.Equal(t, 1, len(cookies), "expected auth cookie in response")
 		found := false
 		for _, c := range cookies {
@@ -157,12 +162,13 @@ func TestLoginUserHandler(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		resp := httptest.NewRecorder()
+		r := httptest.NewRecorder()
 
-		h.LoginUser(resp, req)
-		defer resp.Result().Body.Close()
+		h.LoginUser(r, req)
+		resp := r.Result()
+		defer resp.Body.Close()
 
-		assert.Equal(t, http.StatusBadRequest, resp.Result().StatusCode, "unexpected response code")
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "unexpected response code")
 	})
 
 	t.Run("bad request (empty fields)", func(t *testing.T) {
@@ -170,12 +176,13 @@ func TestLoginUserHandler(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		resp := httptest.NewRecorder()
+		r := httptest.NewRecorder()
 
-		h.LoginUser(resp, req)
-		defer resp.Result().Body.Close()
+		h.LoginUser(r, req)
+		resp := r.Result()
+		defer resp.Body.Close()
 
-		assert.Equal(t, http.StatusBadRequest, resp.Result().StatusCode, "unexpected response code")
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "unexpected response code")
 	})
 
 	t.Run("user not found", func(t *testing.T) {
@@ -186,12 +193,13 @@ func TestLoginUserHandler(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		resp := httptest.NewRecorder()
+		r := httptest.NewRecorder()
 
-		h.LoginUser(resp, req)
-		defer resp.Result().Body.Close()
+		h.LoginUser(r, req)
+		resp := r.Result()
+		defer resp.Body.Close()
 
-		assert.Equal(t, http.StatusUnauthorized, resp.Result().StatusCode, "unexpected response code")
+		assert.Equal(t, http.StatusUnauthorized, resp.StatusCode, "unexpected response code")
 	})
 
 	t.Run("invalid password", func(t *testing.T) {
@@ -205,11 +213,12 @@ func TestLoginUserHandler(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		resp := httptest.NewRecorder()
+		r := httptest.NewRecorder()
 
-		h.LoginUser(resp, req)
-		defer resp.Result().Body.Close()
+		h.LoginUser(r, req)
+		resp := r.Result()
+		defer resp.Body.Close()
 
-		assert.Equal(t, http.StatusUnauthorized, resp.Result().StatusCode, "unexpected response code")
+		assert.Equal(t, http.StatusUnauthorized, resp.StatusCode, "unexpected response code")
 	})
 }
