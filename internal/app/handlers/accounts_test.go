@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -82,5 +84,121 @@ func TestGetBalanceHandler(t *testing.T) {
 		defer resp.Body.Close()
 
 		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode, "unexpected response code")
+	})
+}
+
+func TestWithdrawPointsHandler(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	m := mocks.NewMockStore(ctrl)
+	h := newTestHandlers(m)
+
+	path := "/api/user/balance/withdraw"
+	userID := uuid.NewString()
+
+	t.Run("positive case", func(t *testing.T) {
+		order := "1234567890003"
+		sum := float32(100)
+		accAfter := models.Account{
+			CurrentPointsTotal: 400,
+			WithdrawnTotal:     1100,
+		}
+		m.EXPECT().WithdrawBalance(gomock.Any(), userID, order, sum).Return(accAfter, nil)
+
+		requestBody := fmt.Sprintf(`{"order":"%s","sum":%f}`, order, sum)
+		req, err := http.NewRequest(http.MethodGet, path, strings.NewReader(requestBody))
+		require.NoError(t, err)
+		ctx := context.WithValue(req.Context(), middleware.AuthenticatedUserKey, userID)
+		req = req.WithContext(ctx)
+		req.Header.Set("Content-Type", "application/json")
+
+		r := httptest.NewRecorder()
+
+		h.WithdrawPoints(r, req)
+		resp := r.Result()
+		defer resp.Body.Close()
+
+		assert.Equal(t, http.StatusOK, resp.StatusCode, "unexpected response code")
+		assert.Equal(t, "application/json", resp.Header.Get("Content-Type"), "unexpected content type")
+
+		respStr, err := io.ReadAll(resp.Body)
+		require.NoError(t, err)
+
+		assert.Equal(t, `{"current":400,"withdrawn":1100}`+"\n", string(respStr), "unexpected response body")
+	})
+
+	t.Run("unauthorized user", func(t *testing.T) {
+		order := "1234567890003"
+		sum := float32(100)
+		requestBody := fmt.Sprintf(`{"order":"%s","sum":%f}`, order, sum)
+		req, err := http.NewRequest(http.MethodGet, path, strings.NewReader(requestBody))
+		require.NoError(t, err)
+		req.Header.Set("Content-Type", "application/json")
+
+		r := httptest.NewRecorder()
+
+		h.WithdrawPoints(r, req)
+		resp := r.Result()
+		defer resp.Body.Close()
+
+		assert.Equal(t, http.StatusUnauthorized, resp.StatusCode, "unexpected response code")
+	})
+
+	t.Run("bad request (no order number)", func(t *testing.T) {
+		order := ""
+		sum := float32(100)
+		requestBody := fmt.Sprintf(`{"order":"%s","sum":%f}`, order, sum)
+		req, err := http.NewRequest(http.MethodGet, path, strings.NewReader(requestBody))
+		require.NoError(t, err)
+		ctx := context.WithValue(req.Context(), middleware.AuthenticatedUserKey, userID)
+		req = req.WithContext(ctx)
+		req.Header.Set("Content-Type", "application/json")
+
+		r := httptest.NewRecorder()
+
+		h.WithdrawPoints(r, req)
+		resp := r.Result()
+		defer resp.Body.Close()
+
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "unexpected response code")
+	})
+
+	t.Run("bad request (invalid sum)", func(t *testing.T) {
+		order := "1234567890003"
+		sum := float32(-1)
+		requestBody := fmt.Sprintf(`{"order":"%s","sum":%f}`, order, sum)
+		req, err := http.NewRequest(http.MethodGet, path, strings.NewReader(requestBody))
+		require.NoError(t, err)
+		ctx := context.WithValue(req.Context(), middleware.AuthenticatedUserKey, userID)
+		req = req.WithContext(ctx)
+		req.Header.Set("Content-Type", "application/json")
+
+		r := httptest.NewRecorder()
+
+		h.WithdrawPoints(r, req)
+		resp := r.Result()
+		defer resp.Body.Close()
+
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "unexpected response code")
+	})
+
+	t.Run("unprocessable entity", func(t *testing.T) {
+		order := "1234567890001"
+		sum := float32(100)
+		requestBody := fmt.Sprintf(`{"order":"%s","sum":%f}`, order, sum)
+		req, err := http.NewRequest(http.MethodGet, path, strings.NewReader(requestBody))
+		require.NoError(t, err)
+		ctx := context.WithValue(req.Context(), middleware.AuthenticatedUserKey, userID)
+		req = req.WithContext(ctx)
+		req.Header.Set("Content-Type", "application/json")
+
+		r := httptest.NewRecorder()
+
+		h.WithdrawPoints(r, req)
+		resp := r.Result()
+		defer resp.Body.Close()
+
+		assert.Equal(t, http.StatusUnprocessableEntity, resp.StatusCode, "unexpected response code")
 	})
 }
