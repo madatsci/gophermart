@@ -87,7 +87,7 @@ func TestRegisterUserHandler(t *testing.T) {
 }
 
 func TestLoginUserHandler(t *testing.T) {
-
+	// TODO implement.
 }
 
 func testServer(m *mocks.MockStore) *httptest.Server {
