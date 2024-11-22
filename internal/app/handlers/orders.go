@@ -9,9 +9,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/madatsci/gophermart/internal/app/models"
+	"github.com/madatsci/gophermart/internal/app/store"
 	"github.com/madatsci/gophermart/pkg/luhn"
 	"github.com/pkg/errors"
-	"github.com/uptrace/bun/driver/pgdriver"
 )
 
 const listOrdersLimit = 100
@@ -63,8 +63,8 @@ func (h *Handlers) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = h.s.CreateOrder(r.Context(), &order); err != nil {
-		var pgErr pgdriver.Error
-		if errors.As(err, &pgErr) && pgErr.IntegrityViolation() {
+		var sErr store.StoreError
+		if errors.As(err, &sErr) && sErr.IntegrityViolation() {
 			order, err = h.s.GetOrderByNumber(r.Context(), orderNumber)
 			if err != nil {
 				h.handleError("CreateOrder", err)
