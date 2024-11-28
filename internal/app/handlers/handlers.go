@@ -27,7 +27,6 @@ type (
 	}
 )
 
-// New creates new Handlers.
 func New(opts Options) *Handlers {
 	return &Handlers{c: opts.Config, s: opts.Store, jwt: opts.JWT, log: opts.Logger}
 }
