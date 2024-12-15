@@ -19,6 +19,8 @@ var (
 
 	TokenSecret   = []byte("secret_key")
 	TokenDuration = time.Hour * 24 * 365
+
+	TestParam string
 )
 
 func Parse() error {
@@ -59,6 +61,15 @@ func Parse() error {
 		return nil
 	})
 
+	flag.Func("test-param", "my new test param", func(flagValue string) error {
+		if flagValue == "" {
+			return errors.New("invalid secret key")
+		}
+
+		TestParam = flagValue
+		return nil
+	})
+
 	flag.Func("token-duration", "authentication token duration", func(flagValue string) error {
 		if flagValue == "" {
 			return errors.New("invalid duration")
@@ -87,7 +98,7 @@ func Parse() error {
 		AccrualSystemAddress = envAccrualSystemAddress
 	}
 
-	if envTokenSecretKey := os.Getenv("TOKEN_SECRET_KEY"); envTokenSecretKey != "" {
+	if envTokenSecretKey := os.Getenv("TOKEN_SECRET"); envTokenSecretKey != "" {
 		TokenSecret = []byte(envTokenSecretKey)
 	}
 
